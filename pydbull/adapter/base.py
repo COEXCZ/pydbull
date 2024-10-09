@@ -197,4 +197,3 @@ class BaseAdapter[ModelT: object](abc.ABC):
         Get the instance of the model.
         To be overridden by the subclasses.
         """
-        return self.model(**data.model_dump())
