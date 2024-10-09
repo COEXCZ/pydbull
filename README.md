@@ -108,9 +108,9 @@ class DjangoModel(models.Model):
     field_2 = models.IntegerField(validators=[MinValueValidator(5)])
 
 
-pydantic_model_cls = pydbull.model_to_pydantic(DjangoModel)
+PydanticModelCls = pydbull.model_to_pydantic(DjangoModel)
 
-pyd_model = pydantic_model_cls(field_1="test", field_2=5)
+pyd_model = PydanticModelCls(field_1="test", field_2=5)
 assert pyd_model.model_dump() == {
     "field_1": "test",
     "field_2": 5,
@@ -119,7 +119,7 @@ assert pyd_model.model_dump() == {
 
 
 # The following will raise a ValidationError
-pydantic_model_cls(field_1="test", field_2=4)
+PydanticModelCls(field_1="test", field_2=4)
 
 
 # You can use `fields` parameter to specify which fields to include in the Pydantic model.
