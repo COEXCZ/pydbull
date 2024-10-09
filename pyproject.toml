@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "pydbull"
+version = "0.1.0"
+description = ""  # TODO
+authors = ["vojtech <vojtech.petru@coex.cz>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pydantic = ">=2.9"
+Django = {version = ">=3.2", optional = true}
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+pytest-django = "^4.9.0"
+pytest-mock = "^3.14.0"
+
+[tool.poetry.group.integrations]
+optional = true
+
+[tool.poetry.group.integrations.dependencies]
+Django = ">=3.2"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "tests.test_django.settings"
+testpaths = ["tests"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
