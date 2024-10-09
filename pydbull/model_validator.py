@@ -6,9 +6,6 @@ import pydantic_core
 
 import pydbull
 
-if typing.TYPE_CHECKING:
-    import django.db.models
-
 __all__ = [
     "model_validator",
     "model_to_pydantic",
@@ -17,7 +14,7 @@ __all__ = [
 ]
 
 
-def model_validator(
+def model_validator( # noqa: ANN201
     model: type,
     adapter_cls: type["pydbull.BaseAdapter"] | None = None,
 ):
@@ -126,7 +123,7 @@ def model_validator(
 
 
 def model_to_pydantic[T: pydantic.BaseModel](
-        model: typing.Any,
+        model: typing.Any, # noqa: ANN401
         name: str | None = None,
         fields: typing.Collection[str] | None = None,
         exclude: typing.Collection[str] | None = None,
@@ -160,10 +157,10 @@ def get_model(model: type[pydantic.BaseModel] | pydantic.BaseModel, /) -> type:
     """
     try:
         return model.__pydbull_model__  # Set in `@model_validator` decorator
-    except AttributeError:
+    except AttributeError as e:
         raise TypeError(
-            f"No pydbull model found. Did you forget to use the @{model_validator.__name__} decorator?"
-        )
+            f"No pydbull model found. Did you forget to use the @{model_validator.__name__} decorator?",
+        ) from e
 
 
 def get_adapter(model: type[pydantic.BaseModel] | pydantic.BaseModel, /) -> "pydbull.BaseAdapter":
@@ -172,13 +169,13 @@ def get_adapter(model: type[pydantic.BaseModel] | pydantic.BaseModel, /) -> "pyd
     """
     try:
         return model.__pydbull_adapter__  # Set in `@model_validator` decorator
-    except AttributeError:
+    except AttributeError as e:
         raise TypeError(
-            f"No pydbull adapter found. Did you forget to use the @{model_validator.__name__} decorator?"
-        )
+            f"No pydbull adapter found. Did you forget to use the @{model_validator.__name__} decorator?",
+        ) from e
 
 
-def _select_adapter(model: typing.Any) -> type["pydbull.BaseAdapter"]:
+def _select_adapter(model: typing.Any) -> type["pydbull.BaseAdapter"]: # noqa: ANN401
     # TODO make it easy to override default adapter from settings
     try:
         import django.db.models
@@ -194,7 +191,7 @@ def _get_field_value(
         field: str,
         adapters: list["pydbull.BaseAdapter"],
         method: typing.Callable[[object], typing.Any],
-) -> typing.Any:
+) -> typing.Any:  # noqa: ANN401
     """
     Iterate over the adapters and return a first defined value.
     """

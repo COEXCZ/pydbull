@@ -24,7 +24,7 @@ class BaseAdapter[ModelT: object](abc.ABC):
         """
         return
 
-    def run_extra_field_validators(self, field: object, value: typing.Any) -> typing.Any:  # noqa: ARG002
+    def run_extra_field_validators(self, field: object, value: typing.Any) -> typing.Any:  # noqa: ARG002 ANN401
         """
         Run any extra validators on the field and return the processed field value.
         :raise pydantic.ValidationError: If the field value is invalid.
@@ -34,7 +34,7 @@ class BaseAdapter[ModelT: object](abc.ABC):
     @staticmethod
     def run_extra_model_validators[T: pydantic.BaseModel](
             pyd_model: T,
-            context: pydantic.ValidationInfo,  # noqa: ARG002
+            context: pydantic.ValidationInfo, # noqa: ARG004
     ) -> T:
         """
         Run any extra validators on the model and return the processed model.
@@ -101,7 +101,7 @@ class BaseAdapter[ModelT: object](abc.ABC):
         """
 
     @abc.abstractmethod
-    def get_default(self, field: object) -> typing.Any:
+    def get_default(self, field: object) -> typing.Any: # noqa: ANN401
         """
         Get the default value of the field.
         """
@@ -125,7 +125,7 @@ class BaseAdapter[ModelT: object](abc.ABC):
         """
 
     @abc.abstractmethod
-    def field_getter(self, field: str) -> typing.Any:
+    def field_getter(self, field: str) -> typing.Any: # noqa: ANN401
         """
         Function to retrieve the model field from the model.
         """

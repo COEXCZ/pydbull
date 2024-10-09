@@ -1,6 +1,6 @@
 import types
 import typing
-from datetime import date, datetime, timedelta, time
+from datetime import date, datetime, time, timedelta
 from decimal import Decimal
 
 import annotated_types
@@ -9,7 +9,8 @@ import django.core.validators
 import django.db.models
 import pydantic.fields
 import pydantic_core
-from pydantic_core import PydanticUndefinedType, PydanticUndefined
+from pydantic_core import PydanticUndefined, PydanticUndefinedType
+
 import pydbull
 from pydbull import _utils as utils
 
@@ -34,7 +35,7 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
     def get_default_factory(self, field: FieldT) -> typing.Callable[[], typing.Any] | PydanticUndefinedType | None:
         if field.default == django.db.models.fields.NOT_PROVIDED and self._field_is_required(field):
             return PydanticUndefined
-        if not type(field.default) is types.FunctionType:
+        if type(field.default) is not types.FunctionType:
             # if not callable, use `get_default`
             return PydanticUndefined
         return field.get_default
@@ -167,7 +168,7 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
     @typing.override
     def run_extra_model_validators[T: "pydantic.BaseModel"](
             pyd_model: T,
-            context: pydantic.ValidationInfo,  # noqa: ARG002
+            context: pydantic.ValidationInfo,
     ) -> T:
         instance: ModelT = pydbull.get_adapter(pyd_model).get_model_instance(pyd_model)
         if not instance:
@@ -197,14 +198,14 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
 
     @classmethod
     @typing.override
-    def convert_to_pydantic_exception(cls, exception: django.core.exceptions.ValidationError) -> pydantic.ValidationError:
+    def convert_to_pydantic_exception(cls, exc: django.core.exceptions.ValidationError) -> pydantic.ValidationError:
         loc_to_errors: dict[str | None, list[django.core.exceptions.ValidationError]] = {}
         try:
-            loc_to_errors = exception.error_dict
+            loc_to_errors = exc.error_dict
         except AttributeError:
             # Case when we don't know which field this belongs to.
             # "__all__" is set by Django model constraint validators, so use it here also to match the behavior.
-            loc_to_errors[django.core.exceptions.NON_FIELD_ERRORS] = exception.error_list
+            loc_to_errors[django.core.exceptions.NON_FIELD_ERRORS] = exc.error_list
         return pydantic.ValidationError.from_exception_data(
             "Model validation error",
             line_errors=[
@@ -230,7 +231,7 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
             return field_type(field)
         return field_type
 
-    def model_to_pydantic[T: pydantic.BaseModel](
+    def model_to_pydantic[T: pydantic.BaseModel]( # noqa: C901
             self,
             *,
             name: str | None = None,
@@ -275,7 +276,10 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
             field_type = self.model_field_to_annotation_type(field)
             if not self._field_is_required(field):
                 field_type = field_type | None
-            field_to_type[field.name] = typing.Annotated[field_type, field_annotations.get(field_name, pydantic.Field())]
+            field_to_type[field.name] = typing.Annotated[
+                field_type,
+                field_annotations.get(field_name, pydantic.Field()),
+            ]
 
         pyd_model = pydantic.create_model(
             name,
@@ -349,7 +353,7 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
             django.core.validators.MaxLengthValidator: "too_long",
             django.core.validators.StepValueValidator: "multiple_of",
         }
-        return mapping.get(validator, None)
+        return mapping.get(validator)
 
     def _field_is_required(self, field: FieldT) -> bool:
         return not field.blank
@@ -388,7 +392,7 @@ _FIELD_TO_PYD_TYPE: dict[type[django.db.models.Field], type | typing.Callable[[d
 
 def _try_enum_type[T: type](field: django.db.models.Field, default: T) -> T | type[django.db.models.Choices]:
     try:
-        choices_enum = getattr(field, "__choices_enum__")
+        choices_enum = field.__choices_enum__
     except AttributeError:
         return default
 

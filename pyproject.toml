@@ -25,6 +25,89 @@ Django = ">=3.2"
 DJANGO_SETTINGS_MODULE = "tests.test_django.settings"
 testpaths = ["tests"]
 
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+fix = false
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "**/migrations/**",
+    "**/tests/**",
+    "**/__init__.py",
+]
+
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "PTH118",  # `os.path.join()` should be replaced by `Path` with `/` operator
+    "A003",  # Class attribute `id` is shadowing a Python builtin (we use this e.g. in Django models, dataclasses, ...)
+    "ANN002",  # Missing type annotation for *args in function definition
+    "ANN003",  # Missing type annotation for **kwargs in function definition
+    "ANN101",  # missing annotation for self
+    "ANN102",  # Missing type annotation for `cls` in classmethod
+    "B008",  # Do not perform function call in argument defaults - we use this e.g. in strawberry.field(...)
+    "D100",  # missing docstring in public module (i.e., no docstring in a .py file)
+    "D101",  # Missing docstring in public class
+    "D102",  # Missing docstring in public method
+    "D103",  # Missing docstring in public function
+    "D104",  # missing docstring in public package (i.e. no docstring in __init__.py)
+    "D105",  # Missing docstring in magic method
+    "D106",  # Missing docstring in public nested class
+    "D107",  # Missing docstring in __init__
+    "D200",  # One-line docstring should fit on one line with quotes
+    "D203",  # 1 blank line required before class docstring
+    "D205",  # 1 blank line required between summary line and description
+    "D212",  # Multi-line docstring summary should start at the second line
+    "D400",  # First line should end with a period
+    "D401",  # First line should be in imperative mood
+    "D415",  # First line should end with a period, question mark, or exclamation point
+    "EM101",  # Exception must not use a string literal, assign to variable first
+    "EM102",  # Exception must not use an f-string literal, assign to variable first
+    "ERA001",  # Found commented-out code
+    "ERA001", # Found commented-out code
+    "F403",  # 'from module import *' used; unable to detect undefined names - we use this in __init__.py files
+    "FA102",  # Missing `from __future__ import annotations`, but uses PEP 585 collection
+    "FBT001",  # Boolean-typed positional argument in function definition
+    "FBT002",  # Boolean default positional argument in function definition
+    "FIX002",  # Line contains TODO, consider resolving the issue
+    "N818",  # Exception name should be named with an Error suffix
+    "PLR0913",  # Too many arguments in function definition
+    "PT009",  # Use a regular `assert` instead of unittest-style `assertGreaterEqual` etc.
+    "RUF009",  # Do not perform function call in dataclass defaults - we use this e.g. in strawberry.field(...)
+    "S311",  # Standard pseudo-random generators are not suitable for security/cryptographic purposes (this was raised when using random.choice etc.)
+    "SIM105",  # Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+    "SIM118",  # Use `key in dict` instead of `key in dict.keys()`; Reason: less explicit, I don't agree with this one
+    "TD001",  #  Invalid TODO tag: `FIXME`
+    "TD002",  # Missing author in a TODO; try: `# TODO(<author_name>): ...` or `# TODO @<author_name>: ...`
+    "TD003",  # Missing issue link on the line following this TODO
+    "TD004",  # Missing colon in TODO
+    "TRY003",  # avoid specifying long messages outside the exception class
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["pydbull"]
+known-third-party = ["django", "pydantic"]
+extra-standard-library = ["typing_extensions"]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

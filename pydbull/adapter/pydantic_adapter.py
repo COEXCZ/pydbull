@@ -1,8 +1,10 @@
 import typing
-from pydbull.adapter import BaseAdapter
+
 import annotated_types
 import pydantic.fields
-from pydantic_core import PydanticUndefinedType, PydanticUndefined
+from pydantic_core import PydanticUndefined, PydanticUndefinedType
+
+from pydbull.adapter import BaseAdapter
 
 __all__ = [
     "PydanticAdapter",
