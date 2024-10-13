@@ -132,7 +132,7 @@ class BaseAdapter[ModelT: object](abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def convert_to_pydantic_exception(cls, exception: Exception) -> pydantic.ValidationError:
+    def convert_to_pydantic_exception(cls, exc: Exception) -> pydantic.ValidationError:
         """
         Convert the model exception to a Pydantic validation error.
         """

@@ -128,8 +128,8 @@ class PydanticAdapter[ModelT: pydantic.BaseModel](BaseAdapter[ModelT]):
 
     @classmethod
     @typing.override
-    def convert_to_pydantic_exception(cls, exception: pydantic.ValidationError) -> pydantic.ValidationError:
-        return exception
+    def convert_to_pydantic_exception(cls, exc: pydantic.ValidationError) -> pydantic.ValidationError:
+        return exc
 
     @classmethod
     @typing.override
