@@ -79,16 +79,28 @@ from django.core.validators import MinValueValidator
 
 
 class User(models.Model):
+    name = models.CharField(max_length=100)
     age = models.IntegerField(validators=[MinValueValidator(5)])
+    
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(age__lte=10, name__iexact="john"),
+                name="age_must_be_less_than_10_for_users_with_name_john",
+            )
+        ]
 
 
 @pydbull.model_validator(User)
 class UserModel(pydantic.BaseModel):
+    name: str
     age: int
 
 
 # The following will raise a ValidationError
-UserModel(age=4)
+UserModel(name="Pepa", age=4)
+# The following will also raise a ValidationError
+UserModel(name="John", age=11)
 ```
 
 
