@@ -183,7 +183,7 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
         except django.core.exceptions.ValidationError as exc:
             errors = exc.update_error_dict(errors)
         if errors:
-            raise pyd_model.__pydbull_adapter__.convert_to_pydantic_exception(
+            raise pydbull.get_adapter(pyd_model).convert_to_pydantic_exception(
                 django.core.exceptions.ValidationError(errors),
             )
         return pyd_model
