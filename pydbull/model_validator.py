@@ -2,7 +2,6 @@ import typing
 
 import pydantic
 import pydantic.fields
-import pydantic_core
 
 import pydbull
 
@@ -30,7 +29,6 @@ def model_validator( # noqa: ANN201
 
     def wrapper[T: pydantic.BaseModel](input_validator: type[T]) -> type[T]:
         adapter = adapter_cls(model)
-        pydantic_adapter = pydbull.PydanticAdapter(input_validator)
         pydantic_fields: dict[str, tuple[type, pydantic.Field]] = {}
         pydantic_method_validators: dict[str, typing.Callable] = {}  # method_name: method
         for field_name, pyd_field_info in input_validator.model_fields.items():
