@@ -40,33 +40,25 @@ def model_validator( # noqa: ANN201
                 # The Field is not present in the model, just in the pydantic validator - nothing to add from the model.
                 continue
 
-            adapters: list[pydbull.BaseAdapter] = [pydantic_adapter, adapter]
-            # Reconstruct the field with values enriched by the model adapter.
-            default = _get_field_value(field_name, adapters, adapter.get_default)
-            if default is pydantic_core.PydanticUndefined:
-                default_factory = _get_field_value(field_name, adapters, adapter.get_default_factory)
-            else:
-                default_factory = pydantic_core.PydanticUndefined
-
+            # Field enriched with additional information from the model.
             enriched_field: pydantic.fields.FieldInfo = pydantic.Field(
-                # Fields enriched by the model ################
-                default=default,
-                default_factory=default_factory,
-                max_length=_get_field_value(field_name, adapters, adapter.get_max_length),
-                min_length=_get_field_value(field_name, adapters, adapter.get_min_length),
-                pattern=_get_field_value(field_name, adapters, adapter.get_pattern),
-                gt=_get_field_value(field_name, adapters, adapter.get_greater_than),
-                ge=_get_field_value(field_name, adapters, adapter.get_greater_than_or_equal),
-                lt=_get_field_value(field_name, adapters, adapter.get_less_than),
-                le=_get_field_value(field_name, adapters, adapter.get_less_than_or_equal),
-                max_digits=_get_field_value(field_name, adapters, adapter.get_decimal_max_digits),
-                decimal_places=_get_field_value(field_name, adapters, adapter.get_decimal_places),
-                multiple_of=_get_field_value(field_name, adapters, adapter.get_multiple_of),
-                description=_get_field_value(field_name, adapters, adapter.get_description),
+                default=adapter.get_default(model_field),
+                default_factory=adapter.get_default_factory(model_field),
+                max_length=adapter.get_max_length(model_field),
+                min_length=adapter.get_min_length(model_field),
+                pattern=adapter.get_pattern(model_field),
+                gt=adapter.get_greater_than(model_field),
+                ge=adapter.get_greater_than_or_equal(model_field),
+                lt=adapter.get_less_than(model_field),
+                le=adapter.get_less_than_or_equal(model_field),
+                max_digits=adapter.get_decimal_max_digits(model_field),
+                decimal_places=adapter.get_decimal_places(model_field),
+                multiple_of=adapter.get_multiple_of(model_field),
+                description=adapter.get_description(model_field),
             )
             pydantic_fields[field_name] = (
                 pyd_field_info.annotation,
-                pydantic.fields.FieldInfo.merge_field_infos(pyd_field_info, enriched_field),
+                pydantic.fields.FieldInfo.merge_field_infos(enriched_field, pyd_field_info),
             )
             # The same as putting @pydantic.field_validator(field_name) decorator on a method
             # which contains the validator logic.
@@ -164,21 +156,3 @@ def _select_adapter(model: typing.Any) -> type["pydbull.BaseAdapter"]: # noqa: A
         # Django not installed
         pass
     raise NotImplementedError(f"Adapter for {model} not implemented")
-
-
-def _get_field_value(
-        field: str,
-        adapters: list["pydbull.BaseAdapter"],
-        method: typing.Callable[[object], typing.Any],
-) -> typing.Any:  # noqa: ANN401
-    """
-    Iterate over the adapters and return a first defined value.
-    """
-    for adapter in adapters:
-        ad_field = adapter.field_getter(field)
-        if ad_field is None:
-            continue
-        val = getattr(adapter, method.__name__)(ad_field)
-        if val is not pydantic_core.PydanticUndefined:
-            return val
-    return pydantic_core.PydanticUndefined
