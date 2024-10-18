@@ -47,47 +47,26 @@ def model_validator( # noqa: ANN201
                 default_factory = _get_field_value(field_name, adapters, adapter.get_default_factory)
             else:
                 default_factory = pydantic_core.PydanticUndefined
+
+            enriched_field: pydantic.fields.FieldInfo = pydantic.Field(
+                # Fields enriched by the model ################
+                default=default,
+                default_factory=default_factory,
+                max_length=_get_field_value(field_name, adapters, adapter.get_max_length),
+                min_length=_get_field_value(field_name, adapters, adapter.get_min_length),
+                pattern=_get_field_value(field_name, adapters, adapter.get_pattern),
+                gt=_get_field_value(field_name, adapters, adapter.get_greater_than),
+                ge=_get_field_value(field_name, adapters, adapter.get_greater_than_or_equal),
+                lt=_get_field_value(field_name, adapters, adapter.get_less_than),
+                le=_get_field_value(field_name, adapters, adapter.get_less_than_or_equal),
+                max_digits=_get_field_value(field_name, adapters, adapter.get_decimal_max_digits),
+                decimal_places=_get_field_value(field_name, adapters, adapter.get_decimal_places),
+                multiple_of=_get_field_value(field_name, adapters, adapter.get_multiple_of),
+                description=_get_field_value(field_name, adapters, adapter.get_description),
+            )
             pydantic_fields[field_name] = (
                 pyd_field_info.annotation,
-                pydantic.Field(
-                    # Fields enriched by the model ################
-                    default=default,
-                    default_factory=default_factory,
-                    max_length=_get_field_value(field_name, adapters, adapter.get_max_length),
-                    min_length=_get_field_value(field_name, adapters, adapter.get_min_length),
-                    pattern=_get_field_value(field_name, adapters, adapter.get_pattern),
-                    gt=_get_field_value(field_name, adapters, adapter.get_greater_than),
-                    ge=_get_field_value(field_name, adapters, adapter.get_greater_than_or_equal),
-                    lt=_get_field_value(field_name, adapters, adapter.get_less_than),
-                    le=_get_field_value(field_name, adapters, adapter.get_less_than_or_equal),
-                    max_digits=_get_field_value(field_name, adapters, adapter.get_decimal_max_digits),
-                    decimal_places=_get_field_value(field_name, adapters, adapter.get_decimal_places),
-                    multiple_of=_get_field_value(field_name, adapters, adapter.get_multiple_of),
-                    description=_get_field_value(field_name, adapters, adapter.get_description),
-                    # Only pydantic fields ##############################
-                    alias=pyd_field_info.alias,
-                    alias_priority=pyd_field_info.alias_priority,
-                    validation_alias=pyd_field_info.validation_alias,
-                    serialization_alias=pyd_field_info.serialization_alias,
-                    title=pyd_field_info.title,
-                    field_title_generator=pyd_field_info.field_title_generator,
-                    examples=pyd_field_info.examples,
-                    exclude=pyd_field_info.exclude,
-                    discriminator=pyd_field_info.discriminator,
-                    deprecated=pyd_field_info.deprecated,
-                    json_schema_extra=pyd_field_info.json_schema_extra,
-                    frozen=pyd_field_info.frozen,
-                    validate_default=pyd_field_info.validate_default,
-                    repr=pyd_field_info.repr,
-                    init=pyd_field_info.init,
-                    init_var=pyd_field_info.init_var,
-                    kw_only=pyd_field_info.kw_only,
-                    strict=pydantic_adapter.get_strict(pyd_field_info),
-                    coerce_numbers_to_str=pydantic_adapter.get_coerce_numbers_to_str(pyd_field_info),
-                    allow_inf_nan=pydantic_adapter.get_allow_inf_nan(pyd_field_info),
-                    union_mode=pydantic_adapter.get_union_mode(pyd_field_info),
-                    fail_fast=pydantic_adapter.get_fail_fast(pyd_field_info),
-                ),
+                pydantic.fields.FieldInfo.merge_field_infos(pyd_field_info, enriched_field),
             )
             # The same as putting @pydantic.field_validator(field_name) decorator on a method
             # which contains the validator logic.
