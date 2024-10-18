@@ -1,3 +1,4 @@
+import importlib.util
 import types
 import typing
 from datetime import date, datetime, time, timedelta
@@ -53,6 +54,7 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
         array_fields = django.db.models.ManyToManyField
         try:
             from django.contrib.postgres.fields import ArrayField
+
             array_fields |= ArrayField
         except ImportError:
             pass
@@ -94,8 +96,8 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
 
     @typing.override
     def get_multiple_of(
-            self,
-            field: FieldT,
+        self,
+        field: FieldT,
     ) -> annotated_types.SupportsDiv | annotated_types.SupportsMod | PydanticUndefinedType:
         validator = self._get_validator(django.core.validators.StepValueValidator, field)
         if not validator:
@@ -167,8 +169,8 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
     @staticmethod
     @typing.override
     def run_extra_model_validators[T: "pydantic.BaseModel"](
-            pyd_model: T,
-            context: pydantic.ValidationInfo,
+        pyd_model: T,
+        context: pydantic.ValidationInfo,
     ) -> T:
         instance: ModelT = pydbull.get_adapter(pyd_model).get_model_instance(pyd_model)
         if not instance:
@@ -217,7 +219,9 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
                     ),
                     "loc": () if loc == django.core.exceptions.NON_FIELD_ERRORS else (loc,),  # TODO handle if nested
                     "input": error.params.get("value") if error.params else None,
-                } for loc, errors in loc_to_errors.items() for error in errors
+                }
+                for loc, errors in loc_to_errors.items()
+                for error in errors
             ],
         )
 
@@ -231,14 +235,14 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
             return field_type(field)
         return field_type
 
-    def model_to_pydantic[T: pydantic.BaseModel]( # noqa: C901
-            self,
-            *,
-            name: str | None = None,
-            fields: typing.Collection[str] | None = None,
-            exclude: typing.Collection[str] | None = None,
-            field_annotations: dict[str, pydantic.fields.FieldInfo] | None = None,
-            __base__: type[T] | None = None,
+    def model_to_pydantic[T: pydantic.BaseModel](  # noqa: C901
+        self,
+        *,
+        name: str | None = None,
+        fields: typing.Collection[str] | None = None,
+        exclude: typing.Collection[str] | None = None,
+        field_annotations: dict[str, pydantic.fields.FieldInfo] | None = None,
+        __base__: type[T] | None = None,
     ) -> type["pydantic.BaseModel"] | type[T]:
         """
         Create a pydantic model from a django model.
@@ -248,6 +252,7 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
         :param field_annotations: Any extra annotations for the fields in the pydantic model.
             Use as: {<field_name>: pydantic.Field(...), ...}
         """
+
         def check_fields_exist_on_model(fields_: typing.Collection[str]) -> None:
             model_fields: set[str] = {f.name for f in dj_model_fields}
             for f in fields_:
@@ -290,8 +295,8 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
 
     @typing.override
     def get_model_instance(
-            self,
-            data: pydantic.BaseModel,
+        self,
+        data: pydantic.BaseModel,
     ) -> ModelT:
         if django_pk := getattr(self, self.model._meta.pk.name, None):  # noqa: SLF001:
             instance: ModelT = self.model.objects.get(pk=django_pk)
@@ -332,9 +337,9 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
         return django.core.exceptions.ValidationError
 
     def _get_validator[T](
-            self,
-            validator_cls: type[T],
-            field: FieldT,
+        self,
+        validator_cls: type[T],
+        field: FieldT,
     ) -> T | None:
         for validator in field.validators:
             if isinstance(validator, validator_cls):
@@ -359,6 +364,9 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
         return not field.blank
 
 
+EmailStr = pydantic.EmailStr if importlib.util.find_spec("email_validator") is not None else str
+
+
 # TODO add more as needed
 _FIELD_TO_PYD_TYPE: dict[type[django.db.models.Field], type | typing.Callable[[django.db.models.Field], type]] = {
     django.db.models.CharField: lambda field: _try_enum_type(field, str),
@@ -378,10 +386,10 @@ _FIELD_TO_PYD_TYPE: dict[type[django.db.models.Field], type | typing.Callable[[d
     django.db.models.DateField: date,
     django.db.models.TimeField: time,
     django.db.models.DateTimeField: datetime,
-    django.db.models.EmailField: pydantic.EmailStr,
-    django.db.models.URLField: pydantic.HttpUrl,
+    django.db.models.EmailField: EmailStr,
+    django.db.models.URLField: str,
     django.db.models.UUIDField: str,
-    django.db.models.GenericIPAddressField: pydantic.IPvAnyAddress,
+    django.db.models.GenericIPAddressField: str,
     django.db.models.FileField: str,
     django.db.models.ImageField: str,
     django.db.models.BinaryField: bytes,
