@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "pydbull"
-version = "0.1.2"
+version = "0.1.3"
 description = ""  # TODO
 authors = ["vojtech <vojtech.petru@coex.cz>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = ">=3.12"
 pydantic = ">=2.9"
 Django = {version = ">=3.2", optional = true}
 

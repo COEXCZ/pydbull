@@ -177,7 +177,7 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
             return pyd_model
         errors = {}
         try:
-            instance.validate_unique()
+            instance.validate_unique(exclude={instance._meta.pk.name})  # noqa: SLF001
         except django.core.exceptions.ValidationError as exc:
             errors = exc.update_error_dict(errors)
         try:
