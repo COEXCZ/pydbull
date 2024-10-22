@@ -1,4 +1,5 @@
 import pydantic
+import pytest
 
 import pydbull
 import django.db.models
@@ -6,7 +7,7 @@ import django.db.models
 
 def test_get_django_instance() -> None:
     class DjangoModel(django.db.models.Model):
-        name: str
+        name = django.db.models.CharField(max_length=100)
 
     @pydbull.model_validator(DjangoModel)
     class TestModel(pydantic.BaseModel):
@@ -18,10 +19,26 @@ def test_get_django_instance() -> None:
     assert dj_instance.name == "test"
 
 
+def test_get_django_instance_with_extra_field() -> None:
+    class DjangoModel(django.db.models.Model):
+        name = django.db.models.CharField(max_length=100)
+
+    @pydbull.model_validator(DjangoModel)
+    class TestModel(pydantic.BaseModel):
+        name: str
+        some_extra_field: str
+
+    pyd_model = TestModel(name="test", some_extra_field="extra")
+    dj_instance = pydbull.get_adapter(pyd_model).get_model_instance(pyd_model)
+    assert type(dj_instance) is DjangoModel
+    assert dj_instance.name == "test"
+    with pytest.raises(AttributeError):
+        dj_instance.some_extra_field
+
 
 def test_get_django_instance_with_nested_object() -> None:
     class NestedDjangoModel(django.db.models.Model):
-        name: str
+        name = django.db.models.CharField(max_length=100)
 
     class DjangoModel(django.db.models.Model):
         nested = django.db.models.ForeignKey(NestedDjangoModel, on_delete=django.db.models.CASCADE)
@@ -46,7 +63,7 @@ def test_get_django_instance_skips_m2m() -> None:
     M2M fields should be skipped when setting the Django instance, as they are not directly settable.
     """
     class NestedDjangoModel(django.db.models.Model):
-        name: str
+        name = django.db.models.CharField(max_length=100)
 
     class DjangoModel(django.db.models.Model):
         nested_list = django.db.models.ManyToManyField(NestedDjangoModel)

@@ -317,10 +317,12 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
             try:
                 django_field: django.db.models.Field | None = instance._meta.get_field(field_name)  # noqa: SLF001
             except django.core.exceptions.FieldDoesNotExist:
-                django_field = None
-            if django_field and django_field.many_to_many:
+                # Not a model field - nothing to do
+                continue
+            if django_field.many_to_many:
                 # Prevents "TypeError: Direct assignment to the forward side of a many-to-many set is prohibited."
                 continue
+
             is_fk_field = isinstance(django_field, django.db.models.ForeignKey)
             if isinstance(field_value, pydantic.BaseModel):
                 field_value: pydantic.BaseModel
