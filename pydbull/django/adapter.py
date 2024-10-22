@@ -283,9 +283,6 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
         elif exclude is not None:
             check_fields_exist_on_model(exclude)
             dj_model_fields = [f for f in dj_model_fields if f.name not in exclude]
-        else:
-            # by default, filter out relation fields
-            dj_model_fields = [f for f in dj_model_fields if not f.is_relation]
 
         name_to_field: dict[str, django.db.models.Field] = {f.name: f for f in dj_model_fields}
         field_to_type: dict[str, type] = {}
