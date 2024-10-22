@@ -8,6 +8,7 @@ import annotated_types
 import django.core.exceptions
 import django.core.validators
 import django.db.models
+import django.db.models.options
 import pydantic.fields
 import pydantic_core
 from pydantic_core import PydanticUndefined, PydanticUndefinedType
@@ -175,9 +176,14 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
         instance: ModelT = pydbull.get_adapter(pyd_model).get_model_instance(pyd_model)
         if not instance:
             return pyd_model
-        errors = {}
+
+        if instance.pk:
+            # ensures that unique=True fields are not checked against the instance itself
+            instance._state.adding = False  # noqa: SLF001
+
+        errors: dict[typing.LiteralString, list[django.core.exceptions.ValidationError]] = {}
         try:
-            instance.validate_unique(exclude={instance._meta.pk.name})  # noqa: SLF001
+            instance.validate_unique()
         except django.core.exceptions.ValidationError as exc:
             errors = exc.update_error_dict(errors)
         try:
@@ -230,7 +236,9 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
             field_type = _FIELD_TO_PYD_TYPE[type(field)]
         except KeyError as e:
             # TODO - add more; search in base classes
-            raise ValueError(f"Unsupported field type: {type(field).__name__}") from e
+            raise ValueError(
+                f"Unsupported field type: {type(field).__name__} on field {field.model.__name__}.{field.name}",
+            ) from e
         if type(field_type) is types.FunctionType:
             return field_type(field)
         return field_type
@@ -266,7 +274,8 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
             raise ValueError("Cannot specify both `fields` and `exclude`.")
         if field_annotations is None:
             field_annotations = {}
-        dj_model_fields: list[django.db.models.Field] = self.model._meta.get_fields()  # noqa: SLF001
+        model_meta: django.db.models.options.Options = self.model._meta  # noqa: SLF001
+        dj_model_fields: list[django.db.models.Field] = model_meta.get_fields()
         check_fields_exist_on_model(field_annotations.keys())
         if fields is not None:
             check_fields_exist_on_model(fields)
@@ -274,6 +283,9 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
         elif exclude is not None:
             check_fields_exist_on_model(exclude)
             dj_model_fields = [f for f in dj_model_fields if f.name not in exclude]
+        else:
+            # by default, filter out relation fields
+            dj_model_fields = [f for f in dj_model_fields if not f.is_relation]
 
         name_to_field: dict[str, django.db.models.Field] = {f.name: f for f in dj_model_fields}
         field_to_type: dict[str, type] = {}
