@@ -5,7 +5,7 @@ import pydbull
 
 from django.core.validators import (
     MaxValueValidator, MinLengthValidator, RegexValidator, MinValueValidator,
-    StepValueValidator,
+    StepValueValidator, URLValidator,
 )
 from django.core.exceptions import ValidationError as DjValidationError
 from django.db.models import (
@@ -58,6 +58,12 @@ def test_get_pattern() -> None:
     assert adapter.get_pattern(CharField(validators=[RegexValidator(r"^[A-Z].*$")])) == "^[A-Z].*$"
     assert adapter.get_pattern(TextField(validators=[RegexValidator(r"^[A-Z].*$")])) == "^[A-Z].*$"
     assert adapter.get_pattern(EmailField(validators=[RegexValidator(r"^[A-Z].*$")])) == "^[A-Z].*$"
+
+
+def test_get_pattern_skips_url_validator() -> None:
+    adapter = pydbull.DjangoAdapter(DjangoModel)  # any model
+    # Skip URLValidator because the regex is too complex for pydantic to handle.
+    assert adapter.get_pattern(CharField(validators=[URLValidator()])) is None
 
 
 def test_get_greater_than() -> None:

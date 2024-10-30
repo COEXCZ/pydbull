@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pydbull"
-version = "0.1.6"
+version = "0.1.7"
 description = ""  # TODO
 authors = ["vojtech <vojtech.petru@coex.cz>"]
 readme = "README.md"

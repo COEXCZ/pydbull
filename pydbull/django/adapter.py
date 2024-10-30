@@ -67,7 +67,12 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
     @typing.override
     def get_pattern(self, field: FieldT) -> str | PydanticUndefinedType | None:
         validator = self._get_validator(django.core.validators.RegexValidator, field)
-        if validator:
+        skip_validators: set[type] = {
+            # Skip URLValidator because the regex is too complex for pydantic to handle.
+            # The validation is therefore done only in Django (see `run_extra_field_validators`).
+            django.core.validators.URLValidator,
+        }
+        if validator and type(validator) not in skip_validators:
             return validator.regex.pattern
         return None
 
