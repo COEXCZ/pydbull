@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.12"
-pydantic = ">=2.9"
+pydantic = ">=2.10.1"
 Django = {version = ">=3.2", optional = true}
 
 [tool.poetry.group.dev.dependencies]
