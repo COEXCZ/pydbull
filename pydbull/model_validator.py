@@ -13,7 +13,7 @@ __all__ = [
 ]
 
 
-def model_validator( # noqa: ANN201
+def model_validator(  # noqa: ANN201
     model: type,
     adapter_cls: type["pydbull.BaseAdapter"] | None = None,
 ):
@@ -60,20 +60,18 @@ def model_validator( # noqa: ANN201
             )
             # The same as putting @pydantic.field_validator(field_name) decorator on a method
             # which contains the validator logic.
-            pydantic_method_validators[f"pydbull_{field_name}_field_extra_validators"] = (
-                pydantic.field_validator(field_name)(
-                    lambda value, field=model_field: adapter.run_extra_field_validators(field=field, value=value),
-                )
+            pydantic_method_validators[f"pydbull_{field_name}_field_extra_validators"] = pydantic.field_validator(
+                field_name,
+            )(
+                lambda value, field=model_field: adapter.run_extra_field_validators(field=field, value=value),
             )
 
         # The same as putting @pydantic.model_validator decorator on a method which contains the validator logic.
-        pydantic_method_validators["pydbull_model_extra_validators"] = (
-            typing.cast(
-                callable,
-                pydantic.model_validator(mode="after")(
-                    adapter.run_extra_model_validators,
-                ),
-            )
+        pydantic_method_validators["pydbull_model_extra_validators"] = typing.cast(
+            callable,
+            pydantic.model_validator(mode="after")(
+                adapter.run_extra_model_validators,
+            ),
         )
 
         # Need to re-create the pydantic model, because there is no other way (AFAIK) how to add validators to an
@@ -88,16 +86,17 @@ def model_validator( # noqa: ANN201
         pyd_model.__pydbull_model__ = model
         pyd_model.__pydbull_adapter__ = adapter
         return pyd_model
+
     return wrapper
 
 
 def model_to_pydantic[T: pydantic.BaseModel](
-        model: typing.Any, # noqa: ANN401
-        name: str | None = None,
-        fields: typing.Collection[str] | None = None,
-        exclude: typing.Collection[str] | None = None,
-        field_annotations: dict[str, pydantic.fields.FieldInfo] | None = None,
-        __base__: type[T] | None = None,
+    model: typing.Any,  # noqa: ANN401
+    name: str | None = None,
+    fields: typing.Collection[str] | None = None,
+    exclude: typing.Collection[str] | None = None,
+    field_annotations: dict[str, pydantic.fields.FieldInfo] | None = None,
+    __base__: type[T] | None = None,
 ) -> type[pydantic.BaseModel] | type[T]:
     """
     Convenience function to create a pydantic model from a model (e.g., Django model).
@@ -144,10 +143,11 @@ def get_adapter(model: type[pydantic.BaseModel] | pydantic.BaseModel, /) -> "pyd
         ) from e
 
 
-def _select_adapter(model: typing.Any) -> type["pydbull.BaseAdapter"]: # noqa: ANN401
+def _select_adapter(model: typing.Any) -> type["pydbull.BaseAdapter"]:  # noqa: ANN401
     # TODO make it easy to override default adapter from settings
     try:
         import django.db.models
+
         if issubclass(model, django.db.models.Model):
             return pydbull.DjangoAdapter
     except ImportError:

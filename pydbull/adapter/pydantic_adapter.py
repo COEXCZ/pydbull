@@ -51,8 +51,8 @@ class PydanticAdapter[ModelT: pydantic.BaseModel](BaseAdapter[ModelT]):
 
     @typing.override
     def get_greater_than_or_equal(
-            self,
-            field: FieldT,
+        self,
+        field: FieldT,
     ) -> annotated_types.SupportsGe | PydanticUndefinedType:
         validator = self._get_validator(annotated_types.Ge, field)
         return validator.ge if validator else PydanticUndefined
@@ -69,8 +69,8 @@ class PydanticAdapter[ModelT: pydantic.BaseModel](BaseAdapter[ModelT]):
 
     @typing.override
     def get_multiple_of(
-            self,
-            field: FieldT,
+        self,
+        field: FieldT,
     ) -> annotated_types.SupportsDiv | annotated_types.SupportsMod | PydanticUndefinedType:
         validator = self._get_validator(annotated_types.MultipleOf, field)
         return validator.multiple_of if validator else PydanticUndefined
@@ -138,27 +138,27 @@ class PydanticAdapter[ModelT: pydantic.BaseModel](BaseAdapter[ModelT]):
 
     @typing.override
     def model_to_pydantic(
-            self,
-            *,
-            name: str | None = None,
-            fields: typing.Collection[str] | None = None,
-            exclude: typing.Collection[str] | None = None,
-            field_annotations: dict[str, pydantic.fields.FieldInfo] | None = None,
-            __base__: type[pydantic.BaseModel] | None = None,
+        self,
+        *,
+        name: str | None = None,
+        fields: typing.Collection[str] | None = None,
+        exclude: typing.Collection[str] | None = None,
+        field_annotations: dict[str, pydantic.fields.FieldInfo] | None = None,
+        __base__: type[pydantic.BaseModel] | None = None,
     ) -> type["pydantic.BaseModel"]:
         return self.model
 
     @typing.override
     def get_model_instance(
-            self,
-            data: "pydantic.BaseModel",
+        self,
+        data: "pydantic.BaseModel",
     ) -> ModelT:
         return data
 
     def _get_validator[T: annotated_types.BaseMetadata](
-            self,
-            validator_cls: type[T],
-            field: FieldT,
+        self,
+        validator_cls: type[T],
+        field: FieldT,
     ) -> T | None:
         for meta in field.metadata:
             if isinstance(meta, validator_cls):

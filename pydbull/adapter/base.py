@@ -33,8 +33,8 @@ class BaseAdapter[ModelT: object](abc.ABC):
 
     @staticmethod
     def run_extra_model_validators[T: pydantic.BaseModel](
-            pyd_model: T,
-            context: pydantic.ValidationInfo, # noqa: ARG004
+        pyd_model: T,
+        context: pydantic.ValidationInfo,  # noqa: ARG004
     ) -> T:
         """
         Run any extra validators on the model and return the processed model.
@@ -87,8 +87,8 @@ class BaseAdapter[ModelT: object](abc.ABC):
 
     @abc.abstractmethod
     def get_multiple_of(
-            self,
-            field: object,
+        self,
+        field: object,
     ) -> annotated_types.SupportsDiv | annotated_types.SupportsMod | PydanticUndefinedType | None:
         """
         Get the multiple of value of the field value (for example, 2 for even numbers).
@@ -101,7 +101,7 @@ class BaseAdapter[ModelT: object](abc.ABC):
         """
 
     @abc.abstractmethod
-    def get_default(self, field: object) -> typing.Any: # noqa: ANN401
+    def get_default(self, field: object) -> typing.Any:  # noqa: ANN401
         """
         Get the default value of the field.
         """
@@ -125,7 +125,7 @@ class BaseAdapter[ModelT: object](abc.ABC):
         """
 
     @abc.abstractmethod
-    def field_getter(self, field: str) -> typing.Any: # noqa: ANN401
+    def field_getter(self, field: str) -> typing.Any:  # noqa: ANN401
         """
         Function to retrieve the model field from the model.
         """
@@ -146,37 +146,37 @@ class BaseAdapter[ModelT: object](abc.ABC):
 
     @typing.overload
     def model_to_pydantic[T: pydantic.BaseModel](
-            self,
-            *,
-            name: str | None = None,
-            fields: typing.Literal[None] = None,
-            exclude: typing.Collection[str] | None = None,
-            field_annotations: dict[str, pydantic.fields.FieldInfo] | None = None,
-            __base__: type[T] | None = None,
+        self,
+        *,
+        name: str | None = None,
+        fields: typing.Literal[None] = None,
+        exclude: typing.Collection[str] | None = None,
+        field_annotations: dict[str, pydantic.fields.FieldInfo] | None = None,
+        __base__: type[T] | None = None,
     ) -> type["pydantic.BaseModel"] | type[T]:
         pass
 
     @typing.overload
     def model_to_pydantic[T: pydantic.BaseModel](
-            self,
-            *,
-            name: str | None = None,
-            fields: typing.Collection[str] | None = None,
-            exclude: typing.Literal[None] = None,
-            field_annotations: dict[str, pydantic.fields.FieldInfo] | None = None,
-            __base__: type[T] | None = None,
+        self,
+        *,
+        name: str | None = None,
+        fields: typing.Collection[str] | None = None,
+        exclude: typing.Literal[None] = None,
+        field_annotations: dict[str, pydantic.fields.FieldInfo] | None = None,
+        __base__: type[T] | None = None,
     ) -> type["pydantic.BaseModel"] | type[T]:
         pass
 
     @abc.abstractmethod
     def model_to_pydantic[T: pydantic.BaseModel](
-            self,
-            *,
-            name: str | None = None,
-            fields: typing.Collection[str] | None = None,
-            exclude: typing.Collection[str] | None = None,
-            field_annotations: dict[str, pydantic.fields.FieldInfo] | None = None,
-            __base__: type[T] | None = None,
+        self,
+        *,
+        name: str | None = None,
+        fields: typing.Collection[str] | None = None,
+        exclude: typing.Collection[str] | None = None,
+        field_annotations: dict[str, pydantic.fields.FieldInfo] | None = None,
+        __base__: type[T] | None = None,
     ) -> type["pydantic.BaseModel"] | type[T]:
         """
         Create a pydantic model from self.model.
@@ -190,8 +190,8 @@ class BaseAdapter[ModelT: object](abc.ABC):
 
     @abc.abstractmethod
     def get_model_instance(
-            self,
-            data: "pydantic.BaseModel",
+        self,
+        data: "pydantic.BaseModel",
     ) -> ModelT:
         """
         Get the instance of the model.
