@@ -36,7 +36,7 @@ def test_model_validator_inherits_validators_from_the_model() -> None:
         field_1: str
 
     pyd_adapter = pydbull.PydanticAdapter(PydbullDjangoModel)
-    assert pyd_adapter.get_max_length(PydbullDjangoModel.model_fields["field_1"]) == 100
+    assert pyd_adapter.get_max_length(PydbullDjangoModel.__pydantic_fields__["field_1"]) == 100
 
 
 def test_model_validator_inherited_validators_from_model_can_be_overridden() -> None:
@@ -54,8 +54,8 @@ def test_model_validator_inherited_validators_from_model_can_be_overridden() -> 
         field_1: typing.Annotated[str, pydantic.Field(max_length=50)]
 
     pyd_adapter = pydbull.PydanticAdapter(PydbullDjangoModel)
-    assert pyd_adapter.get_max_length(PydbullDjangoModel.model_fields["field_1"]) == 50
-    assert pyd_adapter.get_min_length(PydbullDjangoModel.model_fields["field_1"]) == 5
+    assert pyd_adapter.get_max_length(PydbullDjangoModel.__pydantic_fields__["field_1"]) == 50
+    assert pyd_adapter.get_min_length(PydbullDjangoModel.__pydantic_fields__["field_1"]) == 5
 
 
 def test_model_to_pydantic() -> None:

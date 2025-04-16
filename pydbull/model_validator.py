@@ -6,10 +6,10 @@ import pydantic.fields
 import pydbull
 
 __all__ = [
-    "model_validator",
-    "model_to_pydantic",
-    "get_model",
     "get_adapter",
+    "get_model",
+    "model_to_pydantic",
+    "model_validator",
 ]
 
 
@@ -31,7 +31,7 @@ def model_validator(  # noqa: ANN201
         adapter = adapter_cls(model)
         pydantic_fields: dict[str, tuple[type, pydantic.Field]] = {}
         pydantic_method_validators: dict[str, typing.Callable] = {}  # method_name: method
-        for field_name, pyd_field_info in input_validator.model_fields.items():
+        for field_name, pyd_field_info in input_validator.__pydantic_fields__.items():
             adapter.field_pre_check(field_name, pyd_field_info)
             model_field = adapter.field_getter(field_name)
             if model_field is None:
@@ -68,7 +68,7 @@ def model_validator(  # noqa: ANN201
 
         # The same as putting @pydantic.model_validator decorator on a method which contains the validator logic.
         pydantic_method_validators["pydbull_model_extra_validators"] = typing.cast(
-            callable,
+            "callable",
             pydantic.model_validator(mode="after")(
                 adapter.run_extra_model_validators,
             ),

@@ -312,12 +312,12 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
         self,
         data: pydantic.BaseModel,
     ) -> ModelT:
-        if django_pk := getattr(self, self.model._meta.pk.name, None):  # noqa: SLF001:
+        if django_pk := getattr(self, self.model._meta.pk.name, None):  # noqa: SLF001
             instance: ModelT = self.model.objects.get(pk=django_pk)
         else:
             instance = self.model()
 
-        for field_name in data.model_fields.keys():
+        for field_name in data.__pydantic_fields__.keys():
             field_value: typing.Any = getattr(data, field_name)
             try:
                 django_field: django.db.models.Field | None = instance._meta.get_field(field_name)  # noqa: SLF001

@@ -317,19 +317,19 @@ def test_model_to_pydantic_char_field() -> None:
     adapter = pydbull.DjangoAdapter(Model)
     pyd_model = adapter.model_to_pydantic()
     pyd_adapter = pydbull.PydanticAdapter(pyd_model)
-    assert len(pyd_model.model_fields) == 3  # including ID
-    assert pyd_adapter.get_max_length(pyd_model.model_fields["char_field"]) == 5
-    assert pyd_adapter.get_min_length(pyd_model.model_fields["char_field"]) == 2
-    assert pyd_adapter.get_pattern(pyd_model.model_fields["char_field"]) == "^[A-Z].*$"
-    assert pyd_adapter.get_default(pyd_model.model_fields["char_field"]) == PydanticUndefined
-    assert pyd_adapter.get_default_factory(pyd_model.model_fields["char_field"]) == PydanticUndefined
-    assert pyd_adapter.get_description(pyd_model.model_fields["char_field"]) == "Char field description"
+    assert len(pyd_model.__pydantic_fields__) == 3  # including ID
+    assert pyd_adapter.get_max_length(pyd_model.__pydantic_fields__["char_field"]) == 5
+    assert pyd_adapter.get_min_length(pyd_model.__pydantic_fields__["char_field"]) == 2
+    assert pyd_adapter.get_pattern(pyd_model.__pydantic_fields__["char_field"]) == "^[A-Z].*$"
+    assert pyd_adapter.get_default(pyd_model.__pydantic_fields__["char_field"]) == PydanticUndefined
+    assert pyd_adapter.get_default_factory(pyd_model.__pydantic_fields__["char_field"]) == PydanticUndefined
+    assert pyd_adapter.get_description(pyd_model.__pydantic_fields__["char_field"]) == "Char field description"
 
-    assert pyd_adapter.get_max_length(pyd_model.model_fields["char_field_blank"]) == 10
-    assert pyd_adapter.get_min_length(pyd_model.model_fields["char_field_blank"]) == PydanticUndefined
-    assert pyd_adapter.get_default(pyd_model.model_fields["char_field_blank"]) == ""
-    assert pyd_adapter.get_default_factory(pyd_model.model_fields["char_field_blank"]) == PydanticUndefined
-    assert pyd_adapter.get_description(pyd_model.model_fields["char_field_blank"]) == ""
+    assert pyd_adapter.get_max_length(pyd_model.__pydantic_fields__["char_field_blank"]) == 10
+    assert pyd_adapter.get_min_length(pyd_model.__pydantic_fields__["char_field_blank"]) == PydanticUndefined
+    assert pyd_adapter.get_default(pyd_model.__pydantic_fields__["char_field_blank"]) == ""
+    assert pyd_adapter.get_default_factory(pyd_model.__pydantic_fields__["char_field_blank"]) == PydanticUndefined
+    assert pyd_adapter.get_description(pyd_model.__pydantic_fields__["char_field_blank"]) == ""
 
 
 def test_model_to_pydantic_pk_field() -> None:
@@ -339,8 +339,8 @@ def test_model_to_pydantic_pk_field() -> None:
     adapter = pydbull.DjangoAdapter(Model)
     pyd_model = adapter.model_to_pydantic()
     pyd_adapter = pydbull.PydanticAdapter(pyd_model)
-    assert len(pyd_model.model_fields) == 1
-    pyd_field = pyd_model.model_fields["id"]
+    assert len(pyd_model.__pydantic_fields__) == 1
+    pyd_field = pyd_model.__pydantic_fields__["id"]
     assert pyd_adapter.get_default(pyd_field) is None
     assert pyd_adapter.get_default_factory(pyd_field) == PydanticUndefined
     assert pyd_adapter.get_max_length(pyd_field) == PydanticUndefined
@@ -363,8 +363,8 @@ def test_model_to_pydantic_fields_argument() -> None:
 
     adapter = pydbull.DjangoAdapter(Model)
     pyd_model = adapter.model_to_pydantic(fields=["field_2"])
-    assert len(pyd_model.model_fields) == 1
-    assert "field_2" in pyd_model.model_fields
+    assert len(pyd_model.__pydantic_fields__) == 1
+    assert "field_2" in pyd_model.__pydantic_fields__
 
 
 def test_model_to_pydantic_fields_argument_for_non_existing_field() -> None:
@@ -386,8 +386,8 @@ def test_model_to_pydantic_exclude_argument() -> None:
 
     adapter = pydbull.DjangoAdapter(Model)
     pyd_model = adapter.model_to_pydantic(exclude=["id", "field_2"])
-    assert len(pyd_model.model_fields) == 1
-    assert "field_1" in pyd_model.model_fields
+    assert len(pyd_model.__pydantic_fields__) == 1
+    assert "field_1" in pyd_model.__pydantic_fields__
 
 
 def test_model_to_pydantic_exclude_argument_for_non_existing_field() -> None:
@@ -410,8 +410,8 @@ def test_model_to_pydantic_field_annotations_argument() -> None:
     adapter = pydbull.DjangoAdapter(Model)
     pyd_model = adapter.model_to_pydantic(field_annotations={"field_1": pydantic.Field(ge=2, description="TEST")})
     pyd_adapter = pydbull.PydanticAdapter(pyd_model)
-    assert pyd_adapter.get_greater_than_or_equal(pyd_model.model_fields["field_1"]) == 2
-    assert pyd_adapter.get_description(pyd_model.model_fields["field_1"]) == "TEST"
+    assert pyd_adapter.get_greater_than_or_equal(pyd_model.__pydantic_fields__["field_1"]) == 2
+    assert pyd_adapter.get_description(pyd_model.__pydantic_fields__["field_1"]) == "TEST"
 
 
 def test_model_to_pydantic_field_annotations_argument_for_non_existing_field() -> None:
@@ -437,9 +437,9 @@ def test_model_to_pydantic_foreign_key() -> None:
     adapter = pydbull.DjangoAdapter(ModelTwo)
     pyd_model = adapter.model_to_pydantic()
 
-    assert len(pyd_model.model_fields) == 3  # with ID
-    assert pyd_model.model_fields["fk_field"].annotation is int
-    assert pyd_model.model_fields["fk_field_not_required"].annotation == int | None
+    assert len(pyd_model.__pydantic_fields__) == 3  # with ID
+    assert pyd_model.__pydantic_fields__["fk_field"].annotation is int
+    assert pyd_model.__pydantic_fields__["fk_field_not_required"].annotation == int | None
 
 
 def test_model_to_pydantic_m2m() -> None:
@@ -454,8 +454,8 @@ def test_model_to_pydantic_m2m() -> None:
     pyd_model = adapter.model_to_pydantic()
     pyd_adapter = pydbull.PydanticAdapter(pyd_model)
 
-    assert len(pyd_model.model_fields) == 3  # with ID
-    assert pyd_model.model_fields["m2m_field"].annotation == list[int]
-    assert pyd_model.model_fields["m2m_field_blank"].annotation == list[int] | None
-    assert pyd_adapter.get_min_length(pyd_model.model_fields["m2m_field"]) == 1
-    assert pyd_adapter.get_min_length(pyd_model.model_fields["m2m_field_blank"]) == PydanticUndefined
+    assert len(pyd_model.__pydantic_fields__) == 3  # with ID
+    assert pyd_model.__pydantic_fields__["m2m_field"].annotation == list[int]
+    assert pyd_model.__pydantic_fields__["m2m_field_blank"].annotation == list[int] | None
+    assert pyd_adapter.get_min_length(pyd_model.__pydantic_fields__["m2m_field"]) == 1
+    assert pyd_adapter.get_min_length(pyd_model.__pydantic_fields__["m2m_field_blank"]) == PydanticUndefined

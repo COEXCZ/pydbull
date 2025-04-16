@@ -122,7 +122,7 @@ class PydanticAdapter[ModelT: pydantic.BaseModel](BaseAdapter[ModelT]):
     @typing.override
     def field_getter(self, field: str) -> FieldT | None:
         try:
-            return self.model.model_fields[field]
+            return self.model.__pydantic_fields__[field]
         except KeyError:
             return None
 
