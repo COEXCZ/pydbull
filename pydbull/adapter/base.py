@@ -149,7 +149,7 @@ class BaseAdapter[ModelT: object](abc.ABC):
         self,
         *,
         name: str | None = None,
-        fields: typing.Literal[None] = None,
+        fields: None = None,
         exclude: typing.Collection[str] | None = None,
         field_annotations: dict[str, pydantic.fields.FieldInfo] | None = None,
         __base__: type[T] | None = None,
@@ -162,7 +162,7 @@ class BaseAdapter[ModelT: object](abc.ABC):
         *,
         name: str | None = None,
         fields: typing.Collection[str] | None = None,
-        exclude: typing.Literal[None] = None,
+        exclude: None = None,
         field_annotations: dict[str, pydantic.fields.FieldInfo] | None = None,
         __base__: type[T] | None = None,
     ) -> type["pydantic.BaseModel"] | type[T]:
