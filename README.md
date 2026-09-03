@@ -123,11 +123,7 @@ class DjangoModel(models.Model):
 PydanticModelCls = pydbull.model_to_pydantic(DjangoModel)
 
 pyd_model = PydanticModelCls(field_1="test", field_2=5)
-assert pyd_model.model_dump() == {
-    "field_1": "test",
-    "field_2": 5,
-    "id": None
-}
+assert pyd_model.model_dump() == {"field_1": "test", "field_2": 5, "id": None}
 
 
 # The following will raise a ValidationError
@@ -139,7 +135,9 @@ pydbull.model_to_pydantic(DjangoModel, fields=["field_1"])
 # You can also use `exclude` parameter to specify which fields to exclude from the Pydantic model.
 pydbull.model_to_pydantic(DjangoModel, exclude=["id"])
 # You can use `field_annotations` parameter to specify additional field annotations for the Pydantic model.
-pydbull.model_to_pydantic(DjangoModel, field_annotations={"field_1": pydantic.Field(max_length=2, description="Some description")})
+pydbull.model_to_pydantic(
+    DjangoModel, field_annotations={"field_1": pydantic.Field(max_length=2, description="Some description")}
+)
 ```
 
 ## Integrations

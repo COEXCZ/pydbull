@@ -11,7 +11,7 @@ pydantic = ">=2.10.1"
 Django = {version = ">=3.2", optional = true}
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.3.3"
+pytest = "^9.0.3"
 pytest-django = "^4.9.0"
 pytest-mock = "^3.14.0"
 
@@ -62,9 +62,8 @@ ignore = [
     "A003",  # Class attribute `id` is shadowing a Python builtin (we use this e.g. in Django models, dataclasses, ...)
     "ANN002",  # Missing type annotation for *args in function definition
     "ANN003",  # Missing type annotation for **kwargs in function definition
-    "ANN101",  # missing annotation for self
-    "ANN102",  # Missing type annotation for `cls` in classmethod
     "B008",  # Do not perform function call in argument defaults - we use this e.g. in strawberry.field(...)
+    "CPY001",  # Missing copyright notice at top of file
     "D100",  # missing docstring in public module (i.e., no docstring in a .py file)
     "D101",  # Missing docstring in public class
     "D102",  # Missing docstring in public method
@@ -90,7 +89,9 @@ ignore = [
     "FBT002",  # Boolean default positional argument in function definition
     "FIX002",  # Line contains TODO, consider resolving the issue
     "N818",  # Exception name should be named with an Error suffix
+    "PLC0415",  # `import` should be at the top-level of a file - we import optional integrations (Django, postgres fields) lazily
     "PLR0913",  # Too many arguments in function definition
+    "PLR0917",  # Too many positional arguments
     "PT009",  # Use a regular `assert` instead of unittest-style `assertGreaterEqual` etc.
     "RUF009",  # Do not perform function call in dataclass defaults - we use this e.g. in strawberry.field(...)
     "S311",  # Standard pseudo-random generators are not suitable for security/cryptographic purposes (this was raised when using random.choice etc.)

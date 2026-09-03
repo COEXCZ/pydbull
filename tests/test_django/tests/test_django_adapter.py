@@ -202,7 +202,7 @@ def test_run_extra_model_validators(mocker: pytest_mock.MockFixture) -> None:
         class Meta:
             constraints = [
                 UniqueConstraint(fields=["name"], name="unique_name"),
-                CheckConstraint(check=~Q(name="INVALID"), name="check_name"),
+                CheckConstraint(condition=~Q(name="INVALID"), name="check_name"),
             ]
 
     adapter = pydbull.DjangoAdapter(Model)
@@ -222,7 +222,7 @@ def test_run_extra_model_validators_with_errors(mocker: pytest_mock.MockFixture)
         class Meta:
             constraints = [
                 UniqueConstraint(fields=["name"], name="unique_name"),
-                CheckConstraint(check=~Q(name="INVALID"), name="check_name"),
+                CheckConstraint(condition=~Q(name="INVALID"), name="check_name"),
             ]
 
     adapter = pydbull.DjangoAdapter(Model)

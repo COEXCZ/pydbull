@@ -224,7 +224,7 @@ class DjangoAdapter[ModelT: django.db.models.Model](pydbull.BaseAdapter[ModelT])
             line_errors=[
                 {
                     "type": pydantic_core.PydanticCustomError(
-                        error.code if error.code else "value_error",
+                        error.code or "value_error",
                         ". ".join(error.messages),
                         {},
                     ),
